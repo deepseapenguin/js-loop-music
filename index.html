@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <select id="song">
+    <option value="BlueReflection">Blue Reflection</option>
+    <option value="I(Sun)">I (Sun)</option>
+
+  </select>
+  <button id="start">start</button>
+</body>
+<script>
+  let started = false;
+  let lengthData = {
+    'BlueReflection': {
+      start: 163186,
+      loop: 158359
+    },
+    'I(Sun)': {
+      start: 158284,
+      loop: 137148
+    },
+  }
+
+
+  let intervalID = null;
+  document.getElementById('start').onclick = () => {
+    if (!started) {
+      let e = document.getElementById("song");
+      let value = e.value;
+
+      var start = new Audio(`${value}/start.mp3`);
+      var loop1 = new Audio(`${value}/loop.mp3`);
+      var loop2 = new Audio(`${value}/loop.mp3`);
+      started = true;
+      start.play()
+      let startedTime = +new Date();
+      let currentLoop = 1;
+      let targetLength = lengthData[value].start;
+      function step() {
+        // console.log(start.currentTime)
+        let current = +new Date()
+        let c = start.currentTime;
+        // console.log(c)
+        let timeStamp = current - startedTime;
+        if (timeStamp > targetLength) {
+          startedTime = current;
+          targetLength = lengthData[value].loop;
+          if (currentLoop === 1) {
+            loop1.play()
+            currentLoop = 2;
+          } else {
+            loop2.play()
+            currentLoop = 1;
+          }
+          // console.log('hi')
+        }
+
+        if (started) {
+          setTimeout(step, 10);
+        }
+      }
+      step()
+
+    } else {
+      started = false;
+      cancelAnimationFrame(intervalID)
+      stopAudio(start)
+      stopAudio(loop1)
+      stopAudio(loop2)
+    }
+  };
+  function stopAudio(audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+</script>
+
+</html>
